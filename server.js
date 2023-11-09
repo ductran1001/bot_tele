@@ -1,6 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
 
-const token = '6949067750:AAHODXJs-6nng3CHInjGU9I_QkAOKpQRr8I';
+const token = '6745774930:AAH2D83RGgXaPd9tjuFQFhWHkWSd4vMspE0';
 
 const bot = new TelegramBot(token, { polling: true });
 
@@ -21,13 +21,12 @@ bot.on('message', async (msg) => {
     return `${paymentMethod}: ${sellPrice}`;
   }).join("\n\n")
     }`;
-
   bot.sendMessage(chatId, sentMessageRes)
     .then((sentMessage) => {
       setTimeout(() => {
         bot.deleteMessage(chatId, sentMessage.message_id);
         sendMessageAndDeleteAgain(chatId);
-      }, 1000 * 60 * 60); //one hour
+      }, 2000); //one hour
     });
 });
 
@@ -46,13 +45,13 @@ async function sendMessageAndDeleteAgain(chatId) {
       setTimeout(() => {
         bot.deleteMessage(chatId, sentMessage.message_id);
         sendMessageAndDeleteAgain(chatId);
-      }, 1000 * 60 * 60); //one hour
+      }, 2000); //one hour
     });
 }
 
 // Function to fetch gold prices
 async function fetchGoldPrices() {
-  const apiUrl = 'https://api.npoint.io/d0e75247700affeb2da2';
+  const apiUrl = 'https://api.npoint.io/9031f9c27f3d6d5dd7b8';
   const response = await fetch(apiUrl);
   const data = await response.json();
   return data;
