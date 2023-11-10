@@ -1,8 +1,10 @@
+const TOKEN = '6745774930:AAH2D83RGgXaPd9tjuFQFhWHkWSd4vMspE0';
+const APIURL = 'https://api.npoint.io/9031f9c27f3d6d5dd7b8';
+const TIME = 1000 * 60 * 60;
+
 const TelegramBot = require('node-telegram-bot-api');
 
-const token = '6958740287:AAFf4sru-A-AQzuYY886fK3RW-R4NJ23sc8';
-
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(TOKEN, { polling: true });
 
 // Handle '/echo' command
 bot.onText(/\/echo (.+)/, (msg, match) => {
@@ -14,45 +16,55 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
-  const goldPrices = await fetchGoldPrices();
+  const exchangeRates = await fetchExchangeRates();
+  const option = {
+    "parse_mode": "HTML",
+  };
 
-  const sentMessageRes = `**Exchange Rates:**\n\n${Object.keys(goldPrices).map((paymentMethod) => {
-    const sellPrice = goldPrices[paymentMethod].sell;
-    return `${paymentMethod}: ${sellPrice}`;
+  const sentMessageRes = `${bold('Tỷ giá USD - Digital Banks')}\n\n${Object.keys(exchangeRates).map((bankName) => {
+    const buyPrice = exchangeRates[bankName].buy;
+    const sellPrice = exchangeRates[bankName].sell;
+    return `${bankName}\n  MUA: ${bold(buyPrice)} VND\n  BÁN: ${bold(sellPrice)} VND`;
   }).join("\n\n")
     }`;
-  bot.sendMessage(chatId, sentMessageRes)
+  bot.sendMessage(chatId, sentMessageRes,option)
     .then((sentMessage) => {
       setTimeout(() => {
         bot.deleteMessage(chatId, sentMessage.message_id);
         sendMessageAndDeleteAgain(chatId);
-      }, 2000); //one hour
+      }, TIME); //one hour
     });
 });
 
 // Recurring gold price updates
 async function sendMessageAndDeleteAgain(chatId) {
-  const goldPrices = await fetchGoldPrices();
-
-  const sentMessageRes = `**Exchange Rates:**\n\n${Object.keys(goldPrices).map((paymentMethod) => {
-    const sellPrice = goldPrices[paymentMethod].sell;
-    return `${paymentMethod}: ${sellPrice}`;
+  const exchangeRates = await fetchExchangeRates();
+  const option = {
+    "parse_mode": "HTML",
+  };
+  const sentMessageRes = `${bold('Tỷ giá USD - Digital Banks')}\n\n${Object.keys(exchangeRates).map((bankName) => {
+    const buyPrice = exchangeRates[bankName].buy;
+    const sellPrice = exchangeRates[bankName].sell;
+    return `${bankName}\n  MUA: ${bold(buyPrice)} VND\n  BÁN: ${bold(sellPrice)} VND`;
   }).join("\n\n")
     }`;
 
-  bot.sendMessage(chatId, sentMessageRes)
+  bot.sendMessage(chatId, sentMessageRes,option)
     .then((sentMessage) => {
       setTimeout(() => {
         bot.deleteMessage(chatId, sentMessage.message_id);
         sendMessageAndDeleteAgain(chatId);
-      }, 2000); //one hour
+      }, TIME); //one hour
     });
 }
 
+function bold(text) {
+  return text.bold();
+}
+
 // Function to fetch gold prices
-async function fetchGoldPrices() {
-  const apiUrl = 'https://api.npoint.io/9031f9c27f3d6d5dd7b8';
-  const response = await fetch(apiUrl);
+async function fetchExchangeRates() {
+  const response = await fetch(APIURL);
   const data = await response.json();
   return data;
 }
